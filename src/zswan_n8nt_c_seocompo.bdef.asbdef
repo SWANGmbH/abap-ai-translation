@@ -1,0 +1,18 @@
+managed implementation in class zbp_swan_n8nt_c_seocompo unique;
+strict ( 1 );
+
+define behavior for ZSWAN_N8NT_C_SEOCOMPO //alias <alias_name>
+persistent table SEOCOMPO
+lock master
+authorization master ( instance )
+{
+  create;
+  update;
+
+  mapping for SEOCOMPO {
+   ClassName = clsname;
+   ComponentName = cmpname;
+   ComponentType = cmptype;
+   MethodCategory = mtdtype;
+  }
+}

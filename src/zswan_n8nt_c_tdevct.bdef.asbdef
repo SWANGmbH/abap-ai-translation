@@ -1,0 +1,17 @@
+managed implementation in class zbp_swan_n8nt_c_tdevct unique;
+strict ( 1 );
+
+define behavior for ZSWAN_N8NT_C_TDEVCT
+persistent table TDEVCT
+lock master
+authorization master ( instance )
+{
+  create;
+  update;
+
+  mapping for tdevct {
+   Language = spras;
+   Text = ctext;
+   PackageName = devclass;
+  }
+}

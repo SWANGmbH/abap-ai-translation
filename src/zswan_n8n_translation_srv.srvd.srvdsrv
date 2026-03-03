@@ -1,0 +1,7 @@
+@EndUserText.label: 'N8N translation service binding'
+define service ZSWAN_N8N_TRANSLATION_SRV {
+  expose ZSWAN_N8NT_CE_OBJECTS as Package;
+  expose ZSWAN_N8NT_C_TDEVCT as PackageText;
+  expose ZSWAN_N8NT_C_SEOCOMPO as ClassComponent;
+  expose ZSWAN_N8NT_C_SEOCOMPOTX as ClassComponentText;
+}

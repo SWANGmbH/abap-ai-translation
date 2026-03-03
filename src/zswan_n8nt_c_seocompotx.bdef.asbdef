@@ -1,0 +1,19 @@
+managed implementation in class zbp_swan_n8nt_c_seocompotx unique;
+strict ( 1 );
+
+define behavior for ZSWAN_N8NT_C_SEOCOMPOTX
+persistent table seocompotx
+lock master
+authorization master ( instance )
+{
+  create;
+  update;
+
+  mapping for seocompotx
+  {
+    ClassName = clsname;
+    ComponentName = cmpname;
+    Language = langu;
+    Text = descript;
+  }
+}
