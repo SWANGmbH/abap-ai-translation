@@ -2,6 +2,22 @@
 
 Welcome! In this repository you will find all the information and resources to automatically translate ABAP development objects using AI. 🧠📘
 
+![Screenshot](./docs/class-agent.png)
+
+## Process descrioton
+
+### Main process
+
+![Main](./docs/mermaid-main.png)
+
+### Sub AI Agent for translation
+
+![Sub](./docs/mermaid-sub.png)
+
+### Extended Sub AI Agent with initial text generation when text is missing by checking implementation
+
+![Sub](./docs/mermaid-class-ext.png)
+
 ## 🚀 1. Install Tech Stack
 
 ### ⚙️ Node.js 22
