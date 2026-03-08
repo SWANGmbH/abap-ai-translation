@@ -1,5 +1,3 @@
-# ABAP-AI-TRANSLATION
-
 # 📄 Automatic Translation of ABAP Development Objects with AI
 
 Welcome! In this repository you will find all the information and resources to automatically translate ABAP development objects using AI. 🧠📘
