@@ -1,7 +1,18 @@
 @EndUserText.label: 'N8N translation service binding'
 define service ZSWAN_N8N_TRANSLATION_SRV {
-  expose ZSWAN_N8NT_CE_OBJECTS as Package;
+  expose ZSWAN_N8NT_CE_PACKAGE_CONTENTS as PackageContents;
   expose ZSWAN_N8NT_C_TDEVCT as PackageText;
   expose ZSWAN_N8NT_C_SEOCOMPO as ClassComponent;
   expose ZSWAN_N8NT_C_SEOCOMPOTX as ClassComponentText;
+  expose ZSWAN_N8NT_CE_METHOD_SOURCE as MethodSource;
+  expose ZSWAN_N8NT_C_SEOCLASSTX as ClassText;
+  expose ZSWAN_N8NT_C_DD01T as DomainText;
+  expose ZSWAN_N8NT_C_DD02T as TableAndStructureText;
+  expose ZSWAN_N8NT_C_DD25T as ViewAndLockText;
+  expose ZSWAN_N8NT_C_DD40T as TableTypeText;
+  expose ZSWAN_N8NT_C_T100 as MessageClassText;
+  expose ZSWAN_N8NT_C_TFTIT as FunctionModuleText;
+  expose ZSWAN_N8NT_C_TLIBT as FunctionGroupText;
+  expose ZSWAN_N8NT_C_TRDIRT as ProgramText;
+  expose ZSWAN_N8NT_C_TSTCT as TransactionText;
 }

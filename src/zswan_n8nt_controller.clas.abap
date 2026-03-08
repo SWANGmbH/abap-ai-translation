@@ -1,37 +1,62 @@
-CLASS zswan_n8nt DEFINITION
+CLASS zswan_n8nt_controller DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
 
-   TYPES: BEGIN OF ty_ai_doc_object,
-             obj_type TYPE trobjtype,
-             obj_name TYPE sobj_name,
-             package  TYPE devclass,
-             masterlang TYPE spras,
-           END OF ty_ai_doc_object,
-           tt_ai_doc_objects TYPE STANDARD TABLE OF ty_ai_doc_object
-                             WITH DEFAULT KEY.
+    TYPES:
+      BEGIN OF ty_ai_trans_object,
+        obj_type   TYPE trobjtype,
+        obj_name   TYPE sobj_name,
+        package    TYPE devclass,
+        masterlang TYPE spras,
+      END OF ty_ai_trans_object .
+    TYPES:
+      tt_ai_trans_objects TYPE STANDARD TABLE OF ty_ai_trans_object
+                               WITH DEFAULT KEY .
 
     CLASS-METHODS get_all_package_contents
       IMPORTING
         !iv_package        TYPE devclass
       RETURNING
-        VALUE(rt_contents) TYPE tt_ai_doc_objects .
-
+        VALUE(rt_contents) TYPE tt_ai_trans_objects .
     CLASS-METHODS get_all_packages
       IMPORTING
         !iv_package        TYPE devclass
       RETURNING
         VALUE(rt_packages) TYPE gakh_t_tdevc .
-
+    CLASS-METHODS get_class_method_source
+      IMPORTING
+        !iv_class_name     TYPE seoclsname
+        !iv_component_name TYPE seocpdname
+      RETURNING
+        VALUE(rv_source)   TYPE string .
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
-CLASS zswan_n8nt IMPLEMENTATION.
+
+CLASS zswan_n8nt_controller IMPLEMENTATION.
+
+
+  METHOD get_class_method_source.
+
+    DATA lt_source TYPE TABLE OF string.
+
+    DATA(lv_include) = cl_oo_classname_service=>get_method_include(
+        mtdkey = VALUE seocpdkey(
+            clsname = iv_class_name
+            cpdname = iv_component_name ) ).
+
+
+    READ REPORT lv_include INTO lt_source.
+
+    rv_source = concat_lines_of( table = lt_source sep = cl_abap_char_utilities=>newline ).
+
+  ENDMETHOD.
+
 
   METHOD get_all_packages.
 
@@ -52,16 +77,17 @@ CLASS zswan_n8nt IMPLEMENTATION.
       WHERE parentcl = @iv_package.
 
     LOOP AT lt_subpkgs INTO lv_subpkg.
-      APPEND LINES OF zswan_cl_ai_doc=>get_all_packages( lv_subpkg ) TO lt_all_pkgs.
+      APPEND LINES OF zswan_n8nt_controller=>get_all_packages( lv_subpkg ) TO lt_all_pkgs.
     ENDLOOP.
 
     rt_packages = lt_all_pkgs.
 
   ENDMETHOD.
 
+
   METHOD get_all_package_contents.
 
-    DATA(lt_packages) = zswan_cl_ai_doc=>get_all_packages( iv_package ).
+    DATA(lt_packages) = zswan_n8nt_controller=>get_all_packages( iv_package ).
 
     CLEAR: rt_contents.
 

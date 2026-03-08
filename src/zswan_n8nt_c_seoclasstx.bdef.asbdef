@@ -1,0 +1,18 @@
+managed implementation in class zbp_swan_n8nt_c_seoclasstx unique;
+strict ( 1 );
+
+define behavior for ZSWAN_N8NT_C_SEOCLASSTX
+persistent table seoclasstx
+lock master
+authorization master ( instance )
+{
+  create;
+  update;
+
+  mapping for SEOCLASSTX
+  {
+    ClassName = clsname;
+    Language = langu;
+    Text = descript;
+  }
+}

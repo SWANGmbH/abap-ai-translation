@@ -3,7 +3,7 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZSWAN_N8NT</CLSNAME>
+    <CLSNAME>ZSWAN_N8NT_CONTROLLER</CLSNAME>
     <LANGU>E</LANGU>
     <DESCRIPT>N8N translation main class</DESCRIPT>
     <STATE>1</STATE>
@@ -14,8 +14,18 @@
    <DESCRIPTIONS>
     <SEOCOMPOTX>
      <CMPNAME>GET_ALL_PACKAGES</CMPNAME>
-     <LANGU>D</LANGU>
-     <DESCRIPT>Alle Paketinhalt abrufen</DESCRIPT>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Get all packages</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>GET_ALL_PACKAGE_CONTENTS</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Get all package contents</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>GET_CLASS_METHOD_SOURCE</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Get class method implementation source</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
