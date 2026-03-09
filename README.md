@@ -77,6 +77,33 @@ Make sure the package ZSWAN_N8N_TRANSLATION_SRV is available and the service ZSW
 
 Note: If an error occurs indicating that the service (binding or definition) could not be imported, it may need to be created manually.
 
+### 📥 Import n8n workflows from /workflows
+
+This repository includes pre-configured n8n workflows located in the `/workflows` folder. Follow these steps to import them into your local n8n instance:
+
+1. **Open n8n** in your browser (default: `http://localhost:5678`)
+2. Navigate to **Workflows** in the left sidebar
+3. Click the **⋮** (three dots menu) or **Import** button
+4. Select **Import from File**
+5. Browse to the `/workflows` folder and import the following workflow files:
+
+| Workflow File | Description |
+|---------------|-------------|
+| `main.json` | Main orchestration workflow |
+| `class.json` | Class translation workflow |
+| `get-class-languages.json` | Retrieves available languages for a class |
+| `get-class-text.json` | Fetches class text content |
+| `create-or-update-class.json` | Creates or updates class translations |
+| `get-class-method-languages.json` | Retrieves available languages for class methods |
+| `get-class-method-text.json` | Fetches method text content |
+| `get-class-method-implementation.json` | Retrieves method implementation details |
+| `create-or-update-class-method.json` | Creates or updates method translations |
+
+6. **Configure credentials**: After importing, update the SAP connection credentials and AI service API keys in each workflow
+7. **Activate workflows**: Enable the imported workflows by toggling them to "Active"
+
+💡 **Tip:** Start by importing `main.json` first, as it orchestrates the other sub-workflows.
+
 ### ❓ Questions?
 Feel free to reach out to us: Mario Kernich (mario.kernich@swan.de) or Damien Arriens (damien.arriens@swan.de).
 
