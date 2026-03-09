@@ -4,8 +4,8 @@
   <asx:values>
    <VSEOCLASS>
     <CLSNAME>ZSWAN_N8NT_CX</CLSNAME>
-    <LANGU>E</LANGU>
-    <DESCRIPT>N8N translation exception</DESCRIPT>
+    <LANGU>D</LANGU>
+    <DESCRIPT>Hallo Welt</DESCRIPT>
     <CATEGORY>40</CATEGORY>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>

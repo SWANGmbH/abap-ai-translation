@@ -50,24 +50,25 @@ CLASS zswan_n8nt_ce_objects_query IMPLEMENTATION.
 
     ENDLOOP.
 
-    DATA(lt_sort) = io_request->get_sort_elements( ).
-    IF lt_sort IS NOT INITIAL.
-      DATA(lt_sort_dyn) = VALUE abap_sortorder_tab(
-        FOR ls_sort IN lt_sort
-        ( name = ls_sort-element_name
-          descending = COND #( WHEN ls_sort-descending = abap_true
-                               THEN abap_true
-                               ELSE abap_false ) ) ).
-      SORT lt_result BY (lt_sort_dyn).
-    ENDIF.
-
     DATA(lv_total_count) = lines( lt_result ).
+    io_response->set_total_number_of_records( CONV #( lv_total_count ) ).
 
-    DATA(lv_offset) = io_request->get_paging( )->get_offset( ).
+    DATA(lv_offset)    = io_request->get_paging( )->get_offset( ).
     DATA(lv_page_size) = io_request->get_paging( )->get_page_size( ).
 
-    io_response->set_data( lt_result ).
+    IF lv_page_size > 0.
+      DATA(lv_max_index) = lv_offset + lv_page_size.
 
+      IF lv_max_index < lv_total_count.
+        DELETE lt_result FROM ( lv_max_index + 1 ).
+      ENDIF.
+    ENDIF.
+
+    IF lv_offset > 0.
+      DELETE lt_result FROM 1 TO lv_offset.
+    ENDIF.
+
+    io_response->set_data( lt_result ).
 
   ENDMETHOD.
 ENDCLASS.

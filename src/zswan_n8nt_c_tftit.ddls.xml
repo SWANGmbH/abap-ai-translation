@@ -4,8 +4,6 @@
   <asx:values>
    <DDLS>
     <DDLNAME>ZSWAN_N8NT_C_TFTIT</DDLNAME>
-    <DDLANGUAGE>E</DDLANGUAGE>
-    <DDTEXT>Text table: Function module</DDTEXT>
     <SOURCE_TYPE>W</SOURCE_TYPE>
    </DDLS>
   </asx:values>

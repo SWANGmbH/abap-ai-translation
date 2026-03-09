@@ -6,7 +6,6 @@
     <METADATA>
      <NAME>ZSWAN_N8N_TRANSLATION_SRV</NAME>
      <TYPE>SRVB/SVB</TYPE>
-     <DESCRIPTION>N8N translation service binding</DESCRIPTION>
     </METADATA>
     <CONTENT>
      <BIND_TYPE_IMPL>
