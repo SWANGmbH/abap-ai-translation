@@ -1,0 +1,344 @@
+{
+    "name": "Main: AI Translation",
+    "nodes": [
+        {
+            "parameters": {
+                "formTitle": "AI Translation",
+                "formFields": {
+                    "values": [
+                        {
+                            "fieldLabel": "Package",
+                            "requiredField": true
+                        },
+                        {
+                            "fieldLabel": "Target Language",
+                            "fieldType": "dropdown",
+                            "fieldOptions": {
+                                "values": [
+                                    {
+                                        "option": "DE"
+                                    }
+                                ]
+                            },
+                            "requiredField": true
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.formTrigger",
+            "typeVersion": 2.5,
+            "position": [-80, 64],
+            "id": "90c094ac-5a57-4a2b-8a11-9aaa4213ad1b",
+            "name": "On form submission",
+            "webhookId": "229ebe73-1d51-4d57-9e2f-f76acc6a1f5d"
+        },
+        {
+            "parameters": {
+                "rules": {
+                    "values": [
+                        {
+                            "conditions": {
+                                "options": {
+                                    "caseSensitive": true,
+                                    "leftValue": "",
+                                    "typeValidation": "strict",
+                                    "version": 3
+                                },
+                                "conditions": [
+                                    {
+                                        "leftValue": "={{ $json.Type }}",
+                                        "rightValue": "CLAS",
+                                        "operator": {
+                                            "type": "string",
+                                            "operation": "equals"
+                                        },
+                                        "id": "8081256c-43e1-4c4f-8ec7-9812c9dc3a4c"
+                                    }
+                                ],
+                                "combinator": "and"
+                            },
+                            "renameOutput": true,
+                            "outputKey": "Class"
+                        }
+                    ]
+                },
+                "options": {
+                    "fallbackOutput": "extra"
+                }
+            },
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 3.4,
+            "position": [1120, 48],
+            "id": "ae81a086-07d0-42f5-bc16-f2179f7586ef",
+            "name": "Switch"
+        },
+        {
+            "parameters": {
+                "url": "=https://abg-sap-dev01.swan.int:8001/sap/opu/odata/sap/ZSWAN_N8N_TRANSLATION_SRV/PackageContents",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "$filter",
+                            "value": "=PackageName eq '{{ encodeURIComponent($('On form submission').item.json.Package) }}'"
+                        }
+                    ]
+                },
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "accept",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "options": {
+                    "allowUnauthorizedCerts": true
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [144, 64],
+            "id": "a7847bc6-9434-4147-9856-50ed2e66d749",
+            "name": "QueryObjects",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "HFmJZHem8seFIPk3",
+                    "name": "SAP_USER"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "67474932-70e7-42cf-80d1-a2be9e313110",
+                            "leftValue": "",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "string",
+                                "operation": "equals",
+                                "name": "filter.operator.equals"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.filter",
+            "typeVersion": 2.3,
+            "position": [592, 64],
+            "id": "d9f5dff4-e34d-459d-b5df-dac998805ea7",
+            "name": "Filter",
+            "disabled": true
+        },
+        {
+            "parameters": {
+                "fieldToSplitOut": "d.results",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.splitOut",
+            "typeVersion": 1,
+            "position": [368, 64],
+            "id": "f5bc8353-2f37-4b11-9775-924fbf4b7652",
+            "name": "Split Development Objects"
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "type": "n8n-nodes-base.splitInBatches",
+            "typeVersion": 3,
+            "position": [816, 64],
+            "id": "f84249a3-f5d0-4632-922d-694f3cb309be",
+            "name": "Loop Over Development Objects"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "qHOUPZTjsDnQmVUr",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/qHOUPZTjsDnQmVUr",
+                    "cachedResultName": "Translate: Class"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "TargetLanguage": "={{ $('On form submission').item.json['Target Language'] }}",
+                        "ClassName": "={{ $('Loop Over Development Objects').item.json.Name }}",
+                        "SourceLanguage": "={{ $('Loop Over Development Objects').item.json.MasterLanguage }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "SourceLanguage",
+                            "displayName": "SourceLanguage",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "TargetLanguage",
+                            "displayName": "TargetLanguage",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": true
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.3,
+            "position": [1392, 48],
+            "id": "c6bb468c-f664-4b99-adc4-b087ae9fb013",
+            "name": "Translate Class"
+        }
+    ],
+    "pinData": {
+        "On form submission": [
+            {
+                "json": {
+                    "Package": "ZSWAN_TRANSLATION_SAMPLE",
+                    "Target Language": "DE",
+                    "submittedAt": "2026-03-09T03:50:44.097-04:00",
+                    "formMode": "test"
+                },
+                "pairedItem": {
+                    "item": 0
+                }
+            }
+        ]
+    },
+    "connections": {
+        "On form submission": {
+            "main": [
+                [
+                    {
+                        "node": "QueryObjects",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch": {
+            "main": [
+                [
+                    {
+                        "node": "Translate Class",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Loop Over Development Objects",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "QueryObjects": {
+            "main": [
+                [
+                    {
+                        "node": "Split Development Objects",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Filter": {
+            "main": [
+                [
+                    {
+                        "node": "Loop Over Development Objects",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Split Development Objects": {
+            "main": [
+                [
+                    {
+                        "node": "Filter",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Loop Over Development Objects": {
+            "main": [
+                [],
+                [
+                    {
+                        "node": "Switch",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Translate Class": {
+            "main": [
+                [
+                    {
+                        "node": "Loop Over Development Objects",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "binaryMode": "separate",
+        "availableInMCP": false
+    },
+    "versionId": "dce50f64-5ade-4b06-a938-563d4e5d0631",
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "b813e319a1362ee1c3b1b6cc77ed5c8e17d63bc9101971e988ed46fdc4f222f9"
+    },
+    "id": "NJUed9qWQaVonS87",
+    "tags": []
+}

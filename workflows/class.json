@@ -1,0 +1,1000 @@
+{
+    "name": "Translate: Class",
+    "nodes": [
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "value": "google-anthropic-claude-opus-4.6",
+                    "mode": "list",
+                    "cachedResultName": "google-anthropic-claude-opus-4.6"
+                },
+                "builtInTools": {},
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [-3328, -464],
+            "id": "1c4d7e4a-0166-4408-bc16-416f070bdcc7",
+            "name": "OpenAI Class Method Model",
+            "credentials": {
+                "openAiApi": {
+                    "id": "Ark8tCfH4XAiXDc3",
+                    "name": "OpenAI"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "fieldToSplitOut": "d.results",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.splitOut",
+            "typeVersion": 1,
+            "position": [-4000, -688],
+            "id": "412f13ac-cf7c-45f5-bf19-053523999676",
+            "name": "Split Class Methods"
+        },
+        {
+            "parameters": {
+                "url": "=https://abg-sap-dev01.swan.int:8001/sap/opu/odata/sap/ZSWAN_N8N_TRANSLATION_SRV/ClassComponent",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "=$filter",
+                            "value": "=ClassName eq '{{ encodeURIComponent($('Set Data').item.json.ClassName) }}' and ComponentType eq '1'"
+                        }
+                    ]
+                },
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "accept",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "options": {
+                    "allowUnauthorizedCerts": true
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [-4224, -688],
+            "id": "4341a6f8-e48e-4245-a534-7ff7d17a3fb5",
+            "name": "QueryClassMethods",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "HFmJZHem8seFIPk3",
+                    "name": "SAP_USER"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=# Role\nYou are a SAP ABAP documentation and translation agent.\n\n# Context\n- Method: `{{ $json.ComponentName }}`\n- Source Language: `{{ $('Set Data').item.json.SourceLanguage }}`\n- Target Language: `{{ $('Set Data').item.json.TargetLanguage }}`\n\n# CRITICAL RULES\n- Call each tool **MAXIMUM ONCE**. Never call the same tool twice.\n- Always follow the exact call sequence below. No deviations.\n- After your last action, output a **Final Summary** and STOP.\n\n# Pre-Check (no tool call needed)\nIf source language (`{{ $('Set Data').item.json.SourceLanguage }}`) and target language (`{{ $('Set Data').item.json.TargetLanguage }}`) are **identical**:\n→ Output: `SKIPPED: Source and target language are identical.` → **STOP.**\n\n---\n\n# Execution Plan\n\n## Call 1: `Get Primary Class Method Text`\nRead the existing description. Remember the result as **PRIMARY_TEXT**.\n\n→ **PRIMARY_TEXT is not empty?** → Go to Call 3.  \n→ **PRIMARY_TEXT is empty?** → Go to Call 2a.\n\n## Call 2a: `Get Class Method Implementation` *(only if PRIMARY_TEXT was empty)*\nRead the ABAP source code. Analyze:\n- The method name `{{ $json.ComponentName }}`\n- The source code logic\n\nCreate a concise description (max 60 chars) in **{{ $('Set Data').item.json.SourceLanguage }}** that describes **WHAT** the method does.\n\n## Call 2b: `Set Primary Class Method Text` *(only if you created a new description)*\nSave your generated description. This is now your **PRIMARY_TEXT**.\n\n## Call 3: `Get Class Method Languages`\nCheck the returned language list.\n\n→ **Target language `{{ $('Set Data').item.json.TargetLanguage }}` is in the list?**  \n   Output: `SKIPPED: Translation already exists.` → **STOP.**\n\n→ **Target language is NOT in the list?** → Go to Call 4.\n\n## Call 4: `Set Class Method Text`\nTranslate **PRIMARY_TEXT** into `{{ $('Set Data').item.json.TargetLanguage }}` (max 60 chars).\nSave the translation. → **STOP.**\n\n---\n\n# Final Summary (always output this at the end)",
+                "options": {
+                    "maxIterations": 10
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3.1,
+            "position": [-3088, -688],
+            "id": "bc152608-bbdc-43e3-854e-943fccba7dfd",
+            "name": "Translate Class Method"
+        },
+        {
+            "parameters": {
+                "workflowInputs": {
+                    "values": [
+                        {
+                            "name": "SourceLanguage"
+                        },
+                        {
+                            "name": "TargetLanguage"
+                        },
+                        {
+                            "name": "ClassName"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.1,
+            "position": [-5488, -592],
+            "id": "2140ca91-afa3-4192-a02d-16b791be35b9",
+            "name": "Start"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [-5712, -784],
+            "id": "cafd4de9-479d-46a7-9700-7ebcd19c73a8",
+            "name": "When clicking ‘Execute workflow’"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "532c51f2-55c5-4535-a685-ca57807e2edb",
+                            "name": "SourceLanguage",
+                            "value": "EN",
+                            "type": "string"
+                        },
+                        {
+                            "id": "f54d6157-ed8c-472d-a524-224566596f3a",
+                            "name": "TargetLanguage",
+                            "value": "DE",
+                            "type": "string"
+                        },
+                        {
+                            "id": "3df95c02-096a-4fa0-a801-9038ec6be323",
+                            "name": "ClassName",
+                            "value": "ZSWAN_TRANS_SAMPLE_CALCULATOR",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-5488, -784],
+            "id": "fc303518-b6b6-4fac-881b-6e06dd05f9f5",
+            "name": "Set Mock Data"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "be94721c-6117-4418-8684-66d9c575fd03",
+                            "name": "SourceLanguage",
+                            "value": "={{ $json.SourceLanguage }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "45b72077-9236-498e-9913-023aa5497a82",
+                            "name": "TargetLanguage",
+                            "value": "={{ $json.TargetLanguage }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "733f5ab7-6eb3-4a80-96f2-5a8426dda7c8",
+                            "name": "ClassName",
+                            "value": "={{ $json.ClassName }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-5264, -688],
+            "id": "c3dad9a2-c17b-4917-b978-2d98e56bc8f0",
+            "name": "Set Data"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "QQucYk6B1JMbYjE3",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/QQucYk6B1JMbYjE3",
+                    "cachedResultName": "Tool: Get Class Method Languages"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "ClassName": "={{ $json.ClassName }}",
+                        "MethodName": "={{ $json.ComponentName }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "MethodName",
+                            "displayName": "MethodName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.2,
+            "position": [-3200, -464],
+            "id": "47d31483-3c58-4013-8394-894fc35d11ec",
+            "name": "Get Class Method Languages"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "8F9uRQwfEHgxcSft",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/8F9uRQwfEHgxcSft",
+                    "cachedResultName": "Tool: Get Class Method Text"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "ClassName": "={{ $json.ClassName }}",
+                        "MethodName": "={{ $json.ComponentName }}",
+                        "Language": "={{ $json.SourceLanguage }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "MethodName",
+                            "displayName": "MethodName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "Language",
+                            "displayName": "Language",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.2,
+            "position": [-3072, -464],
+            "id": "6dadf9a5-0848-458d-a174-9c1ef0ce6267",
+            "name": "Get Class Method Primrary Text"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "qGJFyOoH3G2xcp0J",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/qGJFyOoH3G2xcp0J",
+                    "cachedResultName": "Tool: Get Class Method Implementation"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "ClassName": "={{ $json.ClassName }}",
+                        "MethodName": "={{ $json.ComponentName }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "MethodName",
+                            "displayName": "MethodName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.2,
+            "position": [-2944, -464],
+            "id": "99c76b58-a153-44a8-99d2-4cce01f02b58",
+            "name": "Get Class Method Implementation"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "NupIlYYe3P1kVMfj",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/NupIlYYe3P1kVMfj",
+                    "cachedResultName": "GetCSFR"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {},
+                    "matchingColumns": ["ServerUrl"],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": true
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.3,
+            "position": [-5040, -688],
+            "id": "b90e4a10-33e1-4b38-af48-6d992656b73f",
+            "name": "GetCSFR"
+        },
+        {
+            "parameters": {
+                "options": {}
+            },
+            "type": "n8n-nodes-base.splitInBatches",
+            "typeVersion": 3,
+            "position": [-3776, -688],
+            "id": "a6386080-c513-4d4e-8e76-7bf06959c784",
+            "name": "Loop Over Items"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "a3bb3657-b068-48be-9291-ac380b3e1927",
+                            "name": "ClassName",
+                            "value": "={{ $json.ClassName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "6755c113-ca6d-4827-be82-f84d95867f6c",
+                            "name": "ComponentName",
+                            "value": "={{ $json.ComponentName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "d59d058f-7090-4635-926c-a0f38170ee83",
+                            "name": "ComponentType",
+                            "value": "={{ $json.ComponentType }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "18da98c8-3e9a-41c7-a340-bb0296fe0be0",
+                            "name": "MethodCategory",
+                            "value": "={{ $json.MethodCategory }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "aed9f689-8c46-432d-af7b-8295f77c423b",
+                            "name": "SourceLanguage",
+                            "value": "={{ $('Set Data').item.json.SourceLanguage }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "b3c36d19-ff2c-4ce8-adac-2ca147115460",
+                            "name": "CsfrToken",
+                            "value": "={{ $('GetCSFR').item.json['x-csrf-token'] }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "4a59041e-d8b8-481f-8732-ee5fa0ee42c3",
+                            "name": "CsfrCookie",
+                            "value": "={{ $('GetCSFR').item.json.cookies }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-3552, -768],
+            "id": "8c932b59-1798-41f2-929d-dbc29eb0f82f",
+            "name": "Edit Fields"
+        },
+        {
+            "parameters": {
+                "model": {
+                    "__rl": true,
+                    "value": "google-anthropic-claude-opus-4.6",
+                    "mode": "list",
+                    "cachedResultName": "google-anthropic-claude-opus-4.6"
+                },
+                "builtInTools": {},
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+            "typeVersion": 1.3,
+            "position": [-4816, -464],
+            "id": "1a0b4433-104a-45aa-a943-6afbbf6481c1",
+            "name": "OpenAI Chat Model",
+            "credentials": {
+                "openAiApi": {
+                    "id": "Ark8tCfH4XAiXDc3",
+                    "name": "OpenAI"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=# Role\nYou are a SAP ABAP documentation and translation agent.\n\n# Context\n- Class: `{{ $('Set Data').item.json.ClassName }}`\n- Source Language (also called as Masterlanguage): `{{ $('Set Data').item.json.SourceLanguage }}`\n- Target Language: `{{ $('Set Data').item.json.TargetLanguage }}`\n\n# CRITICAL RULES\n- Call each tool **MAXIMUM ONCE**. Never call the same tool twice.\n- Always follow the exact call sequence below. No deviations.\n- After your last action, output a **Final Summary** and STOP.\n\nTools:\n- Get Class Primary Text: Get class description of Masterlanguage (Source Lanuage), the text we need to translate from SAP \n- Get Class Languages: List of languages in ISO Code which text are available\n- Set Target Language Class Text: Set translated text in SAP \n\n# Task:\n## 1. Pre-Check (no tool call needed)\nIf source language (`{{ $('Set Data').item.json.SourceLanguage }}`) and target language (`{{ $('Set Data').item.json.TargetLanguage }}`) are **identical**:\n→ Output: `SKIPPED: Source and target language are identical.` → **STOP.**\n## 2. Check if translation is required by using the Tool 'Get Class Languages'. If this contains the Target language then stop.  \n→ Output: `SKIPPED: Target language already exists` → **STOP.**\n## 3. Use the 'Get Class Primary Text' Tool to get current text, translate it and bring it back to SAP using the 'Set Target Language Class' tool\n",
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 3.1,
+            "position": [-4704, -688],
+            "id": "1d188c3a-2f57-422e-8e0c-af43fc8d6323",
+            "name": "Translate Class Description"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "bOue8CkrQlzHTuvt",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/bOue8CkrQlzHTuvt",
+                    "cachedResultName": "Tool: Get Class Languages"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "ClassName": "={{ $('Set Data').item.json.ClassName }}"
+                    },
+                    "matchingColumns": ["ClassName"],
+                    "schema": [
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.2,
+            "position": [-4688, -464],
+            "id": "69ba640b-48ff-4153-8fc0-ad5662f76e23",
+            "name": "Get Class Languages"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "DWs5BQiaQ1qwGVFD",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/DWs5BQiaQ1qwGVFD",
+                    "cachedResultName": "Tool: Get Class Text"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "ClassName": "={{ $('Set Data').item.json.ClassName }}",
+                        "Language": "={{ $('Set Data').item.json.SourceLanguage }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "Language",
+                            "displayName": "Language",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.2,
+            "position": [-4560, -464],
+            "id": "bac1e59d-8512-4674-8de3-5390f90f3e4f",
+            "name": "Get Class Primary Text"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "mgXaOLcc1u4xwBAL",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/mgXaOLcc1u4xwBAL",
+                    "cachedResultName": "Tool: Create Or Update Class Method Text"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "Language": "={{ $('Set Data').item.json.TargetLanguage }}",
+                        "ClassName": "={{ $json.ClassName }}",
+                        "MethodName": "={{ $json.ComponentName }}",
+                        "Text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "MethodName",
+                            "displayName": "MethodName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "Language",
+                            "displayName": "Language",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "Text",
+                            "displayName": "Text",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.2,
+            "position": [-2816, -464],
+            "id": "3f3621c1-585b-4e2c-9928-d02a0f7faf82",
+            "name": "Set Class Method Text"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "mgXaOLcc1u4xwBAL",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/mgXaOLcc1u4xwBAL",
+                    "cachedResultName": "Tool: Create Or Update Class Method Text"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "ClassName": "={{ $json.ClassName }}",
+                        "MethodName": "={{ $json.ComponentName }}",
+                        "Language": "={{ $('Set Data').item.json.SourceLanguage }}",
+                        "Text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "MethodName",
+                            "displayName": "MethodName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "Language",
+                            "displayName": "Language",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "Text",
+                            "displayName": "Text",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.2,
+            "position": [-2688, -464],
+            "id": "26bfd66a-b4ce-48b5-ba38-e6c346ad5721",
+            "name": "Set Primary Class Method Text"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "YyyGgE2K7LfrtvLJ",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/YyyGgE2K7LfrtvLJ",
+                    "cachedResultName": "Tool: Create Or Update Class Text"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "Language": "={{ $('Set Data').item.json.TargetLanguage }}",
+                        "ClassName": "={{ $('Set Data').item.json.ClassName }}",
+                        "Text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', ``, 'string') }}"
+                    },
+                    "matchingColumns": [],
+                    "schema": [
+                        {
+                            "id": "ClassName",
+                            "displayName": "ClassName",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "Language",
+                            "displayName": "Language",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        },
+                        {
+                            "id": "Text",
+                            "displayName": "Text",
+                            "required": false,
+                            "defaultMatch": false,
+                            "display": true,
+                            "canBeUsedToMatch": true,
+                            "type": "string",
+                            "removed": false
+                        }
+                    ],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": false
+                }
+            },
+            "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+            "typeVersion": 2.2,
+            "position": [-4432, -464],
+            "id": "589997c6-e1ff-4fa9-b10c-f444a1c18f77",
+            "name": "Set Target Language Class Text"
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Split Class Methods": {
+            "main": [
+                [
+                    {
+                        "node": "Loop Over Items",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                []
+            ]
+        },
+        "QueryClassMethods": {
+            "main": [
+                [
+                    {
+                        "node": "Split Class Methods",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Class Method Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Translate Class Method",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Translate Class Method": {
+            "main": [
+                [
+                    {
+                        "node": "Loop Over Items",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Start": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "When clicking ‘Execute workflow’": {
+            "main": [
+                [
+                    {
+                        "node": "Set Mock Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Mock Data": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Data": {
+            "main": [
+                [
+                    {
+                        "node": "GetCSFR",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Class Method Languages": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Translate Class Method",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Class Method Primrary Text": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Translate Class Method",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Class Method Implementation": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Translate Class Method",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GetCSFR": {
+            "main": [
+                [
+                    {
+                        "node": "Translate Class Description",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Loop Over Items": {
+            "main": [
+                [],
+                [
+                    {
+                        "node": "Edit Fields",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Edit Fields": {
+            "main": [
+                [
+                    {
+                        "node": "Translate Class Method",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "Translate Class Description",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Translate Class Description": {
+            "main": [
+                [
+                    {
+                        "node": "QueryClassMethods",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Class Languages": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Translate Class Description",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Class Primary Text": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Translate Class Description",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Class Method Text": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Translate Class Method",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Primary Class Method Text": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Translate Class Method",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Target Language Class Text": {
+            "ai_tool": [
+                [
+                    {
+                        "node": "Translate Class Description",
+                        "type": "ai_tool",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "binaryMode": "separate",
+        "availableInMCP": false
+    },
+    "versionId": "35b7741f-cd53-4070-a872-d676a880aa36",
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "b813e319a1362ee1c3b1b6cc77ed5c8e17d63bc9101971e988ed46fdc4f222f9"
+    },
+    "id": "qHOUPZTjsDnQmVUr",
+    "tags": []
+}

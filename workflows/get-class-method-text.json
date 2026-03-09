@@ -1,0 +1,208 @@
+{
+    "name": "Tool: Get Class Method Text",
+    "nodes": [
+        {
+            "parameters": {
+                "workflowInputs": {
+                    "values": [
+                        {
+                            "name": "ClassName"
+                        },
+                        {
+                            "name": "MethodName"
+                        },
+                        {
+                            "name": "Language"
+                        }
+                    ]
+                }
+            },
+            "id": "494b835f-2352-4845-8cba-fe005b91124b",
+            "typeVersion": 1.1,
+            "name": "Start",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "position": [-4240, -352]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "c2bb9ce3-2cae-4c81-8bd8-9afad55d3b28",
+                            "name": "ClassName",
+                            "value": "ZSWAN_N8NT",
+                            "type": "string"
+                        },
+                        {
+                            "id": "abc023d7-9cd0-45f2-acc4-9d46b619e9b0",
+                            "name": "MethodName",
+                            "value": "GET_ALL_PACKAGES",
+                            "type": "string"
+                        },
+                        {
+                            "id": "ea38c893-4759-45c6-8351-27b56d119374",
+                            "name": "Language",
+                            "value": "EN",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-4240, -544],
+            "id": "4795ea61-4a86-4b5e-9954-464faa48417c",
+            "name": "Set Mock Data"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "7fd398a9-f751-48c8-b55b-51fb028c3191",
+                            "name": "ClassName",
+                            "value": "={{ $json.ClassName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "af8436f8-8e44-4547-9326-8eaeda549ada",
+                            "name": "MethodName",
+                            "value": "={{ $json.MethodName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "83e26251-faac-4570-9c2b-b62b12c88681",
+                            "name": "Language",
+                            "value": "={{ $json.Language }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-4016, -448],
+            "id": "74720d25-2c27-45d8-a148-75f6d4ebb4e9",
+            "name": "Set Data"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [-4464, -544],
+            "id": "f1009871-017a-48bf-aae4-56cda0b55273",
+            "name": "Test"
+        },
+        {
+            "parameters": {
+                "url": "=https://abg-sap-dev01.swan.int:8001/sap/opu/odata/sap/ZSWAN_N8N_TRANSLATION_SRV/ClassComponentText(ClassName='{{ encodeURIComponent($json.ClassName) }}',ComponentName='{{ encodeURIComponent($json.MethodName) }}',Language='{{ $json.Language }}') ",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "accept",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "options": {
+                    "allowUnauthorizedCerts": true
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [-3792, -448],
+            "id": "c2037c6c-28dc-4acb-8643-b862a21c317a",
+            "name": "Query Class Method Text",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "HFmJZHem8seFIPk3",
+                    "name": "SAP_USER"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const text = $input.first().json.d.Text;\n\nreturn [{ json: { text } }];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [-3568, -448],
+            "id": "4bd98dc4-00fc-4477-a0bb-1514104f30ba",
+            "name": "Map Result"
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Start": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Mock Data": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Data": {
+            "main": [
+                [
+                    {
+                        "node": "Query Class Method Text",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Test": {
+            "main": [
+                [
+                    {
+                        "node": "Set Mock Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Query Class Method Text": {
+            "main": [
+                [
+                    {
+                        "node": "Map Result",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "availableInMCP": false
+    },
+    "versionId": "8337bf99-7186-4870-8192-69a935ebee41",
+    "meta": {
+        "instanceId": "b813e319a1362ee1c3b1b6cc77ed5c8e17d63bc9101971e988ed46fdc4f222f9"
+    },
+    "id": "8F9uRQwfEHgxcSft",
+    "tags": []
+}

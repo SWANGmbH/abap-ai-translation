@@ -1,0 +1,193 @@
+{
+    "name": "Tool: Get Class Text",
+    "nodes": [
+        {
+            "parameters": {
+                "workflowInputs": {
+                    "values": [
+                        {
+                            "name": "ClassName"
+                        },
+                        {
+                            "name": "Language"
+                        }
+                    ]
+                }
+            },
+            "id": "a7c9f5c5-90d3-46aa-9807-01973a9d62c9",
+            "typeVersion": 1.1,
+            "name": "Start",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "position": [-4240, -352]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "c2bb9ce3-2cae-4c81-8bd8-9afad55d3b28",
+                            "name": "ClassName",
+                            "value": "ZSWAN_N8NT",
+                            "type": "string"
+                        },
+                        {
+                            "id": "ea38c893-4759-45c6-8351-27b56d119374",
+                            "name": "Language",
+                            "value": "EN",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-4240, -544],
+            "id": "a4e0cbf3-c3d6-4621-9cfd-5f7ee44c2136",
+            "name": "Set Mock Data"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "7fd398a9-f751-48c8-b55b-51fb028c3191",
+                            "name": "ClassName",
+                            "value": "={{ $json.ClassName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "83e26251-faac-4570-9c2b-b62b12c88681",
+                            "name": "Language",
+                            "value": "={{ $json.Language }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-4016, -448],
+            "id": "cfd6ca8a-9390-4304-8290-cdd4f2501dfa",
+            "name": "Set Data"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [-4464, -544],
+            "id": "931fdab7-f3e0-4f34-abb2-3ebcc78e38b9",
+            "name": "Test"
+        },
+        {
+            "parameters": {
+                "url": "=https://abg-sap-dev01.swan.int:8001/sap/opu/odata/sap/ZSWAN_N8N_TRANSLATION_SRV/ClassText(ClassName='{{ encodeURIComponent($json.ClassName) }}',Language='{{ $json.Language }}') ",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "accept",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "options": {
+                    "allowUnauthorizedCerts": true
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [-3792, -448],
+            "id": "16730d2c-5bce-49ed-a645-81b2bcef5d9d",
+            "name": "Query Class Method Text",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "HFmJZHem8seFIPk3",
+                    "name": "SAP_USER"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const text = $input.first().json.d.Text;\n\nreturn [{ json: { text } }];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [-3568, -448],
+            "id": "1b94ef4e-1a10-49b0-85e9-9495d89ffdc8",
+            "name": "Map Result"
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Start": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Mock Data": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Data": {
+            "main": [
+                [
+                    {
+                        "node": "Query Class Method Text",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Test": {
+            "main": [
+                [
+                    {
+                        "node": "Set Mock Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Query Class Method Text": {
+            "main": [
+                [
+                    {
+                        "node": "Map Result",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "availableInMCP": false
+    },
+    "versionId": "af70da39-c727-4574-b023-36c1865c1a52",
+    "meta": {
+        "instanceId": "b813e319a1362ee1c3b1b6cc77ed5c8e17d63bc9101971e988ed46fdc4f222f9"
+    },
+    "id": "DWs5BQiaQ1qwGVFD",
+    "tags": []
+}

@@ -1,0 +1,370 @@
+{
+    "name": "Tool: Create Or Update Class Method Text",
+    "nodes": [
+        {
+            "parameters": {
+                "workflowInputs": {
+                    "values": [
+                        {
+                            "name": "ClassName"
+                        },
+                        {
+                            "name": "MethodName"
+                        },
+                        {
+                            "name": "Language"
+                        },
+                        {
+                            "name": "Text"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1.1,
+            "position": [144, -80],
+            "id": "9d8ff915-c4e3-4272-8991-a3c922197bce",
+            "name": "Start"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [-80, -272],
+            "id": "7431ed6d-88b7-4749-abff-1cd59ca2fd7a",
+            "name": "Test"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "9477c956-3877-461e-a305-739bc66e0991",
+                            "name": "ClassName",
+                            "value": "ZSWAN_TRANS_SAMPLE_CALCULATOR",
+                            "type": "string"
+                        },
+                        {
+                            "id": "85163530-ddaf-4e8f-bf4a-98ec440dabc8",
+                            "name": "MethodName",
+                            "value": "ADDITION",
+                            "type": "string"
+                        },
+                        {
+                            "id": "8cad3271-f538-415e-853a-243b84173bb5",
+                            "name": "Language",
+                            "value": "EN",
+                            "type": "string"
+                        },
+                        {
+                            "id": "eaff437b-16ff-4f69-9881-7e4639b5e395",
+                            "name": "Text",
+                            "value": "Hallo Welt2",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [144, -272],
+            "id": "589de2cf-8482-4639-8e03-3bbf80348534",
+            "name": "Set Mock Data"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "1bec987c-56c0-444d-867c-2ae8f65ba3e9",
+                            "name": "ClassName",
+                            "value": "={{ $json.ClassName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "8d8e402f-406b-46ca-a516-3526c1e04c89",
+                            "name": "Language",
+                            "value": "={{ $json.Language }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "07035414-c571-4c51-9d16-4b2291bb5ca1",
+                            "name": "Text",
+                            "value": "={{ $json.Text }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "86e14dc6-ebde-4795-8686-a7936120557f",
+                            "name": "MethodName",
+                            "value": "={{ $json.MethodName }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [368, -176],
+            "id": "9fdd79ef-95bf-4bbe-889f-1c90b16d60d5",
+            "name": "Set Data"
+        },
+        {
+            "parameters": {
+                "workflowId": {
+                    "__rl": true,
+                    "value": "NupIlYYe3P1kVMfj",
+                    "mode": "list",
+                    "cachedResultUrl": "/workflow/NupIlYYe3P1kVMfj",
+                    "cachedResultName": "GetCSFR"
+                },
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {},
+                    "matchingColumns": [],
+                    "schema": [],
+                    "attemptToConvertTypes": false,
+                    "convertFieldsToString": true
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1.3,
+            "position": [576, -176],
+            "id": "4989fb55-3160-42c3-abd7-1453ca4ef49d",
+            "name": "GetCSFR"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "=https://abg-sap-dev01.swan.int:8001/sap/opu/odata/sap/ZSWAN_N8N_TRANSLATION_SRV/ClassComponentText(ClassName='{{ $('Set Data').item.json.ClassName }}',ComponentName='{{ $('Set Data').item.json.MethodName }}',Language='{{ $('Set Data').item.json.Language }}') ",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        },
+                        {
+                            "name": "X-CSRF-Token",
+                            "value": "={{ $('GetCSFR').item.json['x-csrf-token'] }}"
+                        },
+                        {
+                            "name": "Cookie",
+                            "value": "={{ $('GetCSFR').item.json.cookies }}"
+                        },
+                        {
+                            "name": "X-HTTP-Method",
+                            "value": "MERGE"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "Text",
+                            "value": "={{ $('Set Data').item.json.Text }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "allowUnauthorizedCerts": true
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [1104, -256],
+            "id": "d5a925a3-1780-4b77-a9e1-452ce93cb9c9",
+            "name": "Update",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "HFmJZHem8seFIPk3",
+                    "name": "SAP_USER"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "=https://abg-sap-dev01.swan.int:8001/sap/opu/odata/sap/ZSWAN_N8N_TRANSLATION_SRV/ClassComponentText",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        },
+                        {
+                            "name": "X-CSRF-Token",
+                            "value": "={{ $('GetCSFR').item.json['x-csrf-token'] }}"
+                        },
+                        {
+                            "name": "Cookie",
+                            "value": "={{ $('GetCSFR').item.json.cookies }}"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "Text",
+                            "value": "={{ $('Set Data').item.json.Text }}"
+                        },
+                        {
+                            "name": "ClassName",
+                            "value": "={{ $('Set Data').item.json.ClassName }}"
+                        },
+                        {
+                            "name": "Language",
+                            "value": "={{ $('Set Data').item.json.Language }}"
+                        },
+                        {
+                            "name": "ComponentName",
+                            "value": "={{ $('Set Data').item.json.MethodName }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "allowUnauthorizedCerts": true
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [1104, -64],
+            "id": "eb682eab-70ce-489c-9957-404af106ed1a",
+            "name": "Create",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "HFmJZHem8seFIPk3",
+                    "name": "SAP_USER"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "url": "=https://abg-sap-dev01.swan.int:8001/sap/opu/odata/sap/ZSWAN_N8N_TRANSLATION_SRV/ClassComponentText(ClassName='{{ $('Set Data').item.json.ClassName }}',ComponentName='{{ $('Set Data').item.json.MethodName }}',Language='{{ $('Set Data').item.json.Language }}') ",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "options": {
+                    "allowUnauthorizedCerts": true
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [768, -176],
+            "id": "42ec4865-a814-447f-81cc-9f5696832e4e",
+            "name": "Get",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "HFmJZHem8seFIPk3",
+                    "name": "SAP_USER"
+                }
+            },
+            "onError": "continueErrorOutput"
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Test": {
+            "main": [
+                [
+                    {
+                        "node": "Set Mock Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Start": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Mock Data": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Data": {
+            "main": [
+                [
+                    {
+                        "node": "GetCSFR",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "GetCSFR": {
+            "main": [
+                [
+                    {
+                        "node": "Get",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get": {
+            "main": [
+                [
+                    {
+                        "node": "Update",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Create",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "binaryMode": "separate",
+        "availableInMCP": false
+    },
+    "versionId": "e72d030d-4364-4804-892c-baa670713999",
+    "meta": {
+        "instanceId": "b813e319a1362ee1c3b1b6cc77ed5c8e17d63bc9101971e988ed46fdc4f222f9"
+    },
+    "id": "mgXaOLcc1u4xwBAL",
+    "tags": []
+}

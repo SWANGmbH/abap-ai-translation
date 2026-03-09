@@ -1,0 +1,202 @@
+{
+    "name": "Tool: Get Class Method Languages",
+    "nodes": [
+        {
+            "parameters": {
+                "workflowInputs": {
+                    "values": [
+                        {
+                            "name": "ClassName"
+                        },
+                        {
+                            "name": "MethodName"
+                        }
+                    ]
+                }
+            },
+            "id": "c128c7a8-a4b6-4165-ad76-457f97124091",
+            "typeVersion": 1.1,
+            "name": "Start",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "position": [-4400, -432]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "c2bb9ce3-2cae-4c81-8bd8-9afad55d3b28",
+                            "name": "ClassName",
+                            "value": "ZSWAN_N8NT",
+                            "type": "string"
+                        },
+                        {
+                            "id": "abc023d7-9cd0-45f2-acc4-9d46b619e9b0",
+                            "name": "MethodName",
+                            "value": "GET_ALL_PACKAGES",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-4400, -624],
+            "id": "4da32e66-5b64-4c2b-9b84-69abe801cf74",
+            "name": "Set Mock Data"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "7fd398a9-f751-48c8-b55b-51fb028c3191",
+                            "name": "ClassName",
+                            "value": "={{ $json.ClassName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "af8436f8-8e44-4547-9326-8eaeda549ada",
+                            "name": "MethodName",
+                            "value": "={{ $json.MethodName }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [-4176, -528],
+            "id": "0e4e8d3d-7a29-412d-ba0b-ea7a205a9bea",
+            "name": "Set Data"
+        },
+        {
+            "parameters": {},
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [-4624, -624],
+            "id": "164a45c1-9139-4565-8058-a5ff02be39c1",
+            "name": "Test"
+        },
+        {
+            "parameters": {
+                "jsCode": "const results = $input.first().json.d.results;\n\nconst languages = results.map(r => r.Language);\n\nreturn [{ json: { languages } }];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [-3744, -528],
+            "id": "2dbc99e2-2215-4d04-972d-3f96141e1635",
+            "name": "Map Result"
+        },
+        {
+            "parameters": {
+                "url": "https://abg-sap-dev01.swan.int:8001/sap/opu/odata/sap/ZSWAN_N8N_TRANSLATION_SRV/ClassComponentText",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "$filter",
+                            "value": "=ClassName eq '{{ encodeURIComponent($json.ClassName) }}' and ComponentName eq '{{ encodeURIComponent($json.MethodName) }}'"
+                        }
+                    ]
+                },
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "accept",
+                            "value": "application/json"
+                        }
+                    ]
+                },
+                "options": {
+                    "allowUnauthorizedCerts": true
+                }
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [-3952, -528],
+            "id": "b64e4de6-b91e-4a0b-944c-34c64cea1d39",
+            "name": "Query Class Method Languages",
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "HFmJZHem8seFIPk3",
+                    "name": "SAP_USER"
+                }
+            }
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Start": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Mock Data": {
+            "main": [
+                [
+                    {
+                        "node": "Set Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Data": {
+            "main": [
+                [
+                    {
+                        "node": "Query Class Method Languages",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Test": {
+            "main": [
+                [
+                    {
+                        "node": "Set Mock Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Query Class Method Languages": {
+            "main": [
+                [
+                    {
+                        "node": "Map Result",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "availableInMCP": false
+    },
+    "versionId": "c6851837-52fe-477a-8e84-e9a62a2dc09f",
+    "meta": {
+        "instanceId": "b813e319a1362ee1c3b1b6cc77ed5c8e17d63bc9101971e988ed46fdc4f222f9"
+    },
+    "id": "QQucYk6B1JMbYjE3",
+    "tags": []
+}
